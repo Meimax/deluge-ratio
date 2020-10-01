@@ -7,13 +7,13 @@ Now you can!
 
 The status bar format is simple:
 
-   share ratio = (total uploads / total downloads), each in gigabytes (GiB)
+   share ratio = (total uploads / total downloads)
 
 * Installation
 Before installing, it is probably a good idea to check that you have
 the latest version of Deluge installed.
 ** Installing a Release Egg (easiest)
-1. Go to [[https://github.com/holocronweaver/deluge-ratio/releases][releases]].
+1. Go to [[https://github.com/PhasecoreX/deluge-ratio/releases][releases]].
 2. Download the latest release egg.
 3. In Deluge go to ~Preferences -> Plugins~, click ~Install plugin~,
    then find where you downloaded the egg and select it.
@@ -35,8 +35,6 @@ without having to reinstall it to test every change.
 
 However you still have to restart Deluge to test latest changes.
 * Future
-- Use a custom icon instead of gtk stock PLUS symbol.
 - Add option to hide ratio upload/download totals.
-- Auto-adjust upload/download totals to TiB.
 * License
 GPLv3, yo!

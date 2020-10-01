@@ -1,3 +1,3 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 # Create Python egg for distributing plugin.
-python2 setup.py bdist_egg
+python3 setup.py bdist_egg
