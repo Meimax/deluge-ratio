@@ -90,7 +90,7 @@ class Core(CorePluginBase):
         """Generate the ratio and totals for the UI."""
         ratio = "∞"
         if self.total_download > 0:
-            ratio = "%0.2f" % float(self.total_upload) / self.total_download
+            ratio = "{:.2f}".format(self.total_upload / self.total_download)
         return {
             "ratio": ratio,
             "upload": deluge.common.fsize(self.total_upload),
