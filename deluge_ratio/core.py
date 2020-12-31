@@ -43,14 +43,26 @@ class Core(CorePluginBase):
         self.prev_net_recv_payload_bytes = session["net.recv_payload_bytes"]
         self.prev_net_sent_payload_bytes = session["net.sent_payload_bytes"]
 
-        self.periodic_update_config_timer = LoopingCall(self.update_config)
-        self.periodic_update_config_timer.start(321)
+        self.update_totals_timer = LoopingCall(self.update_totals)
+        self.update_totals_timer.start(3)
+
+        self.update_config_timer = LoopingCall(self.update_config)
+        self.update_config_timer.start(321)
 
     def disable(self):
-        self.periodic_update_config_timer.stop()
+        self.update_totals_timer.stop()
+        self.update_config_timer.stop()
         self.update_config()
 
     def update(self):
+        pass
+
+    def get_session_bytes(self):
+        return deluge.component.get("Core").get_session_status(
+            ["net.recv_payload_bytes", "net.sent_payload_bytes"]
+        )
+
+    def update_totals(self):
         session = self.get_session_bytes()
         self.total_download += (
             session["net.recv_payload_bytes"] - self.prev_net_recv_payload_bytes
@@ -60,11 +72,6 @@ class Core(CorePluginBase):
         )
         self.prev_net_recv_payload_bytes = session["net.recv_payload_bytes"]
         self.prev_net_sent_payload_bytes = session["net.sent_payload_bytes"]
-
-    def get_session_bytes(self):
-        return deluge.component.get("Core").get_session_status(
-            ["net.recv_payload_bytes", "net.sent_payload_bytes"]
-        )
 
     def update_config(self):
         """Write totals to the config."""
