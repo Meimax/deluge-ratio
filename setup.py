@@ -11,7 +11,7 @@ from setuptools import find_packages, setup
 __plugin_name__ = "Ratio"
 __author__ = "PhasecoreX"
 __author_email__ = "phasecorex@gmail.com"
-__version__ = "2.0.1"
+__version__ = "2.0.2"
 __url__ = "https://github.com/PhasecoreX/deluge-ratio"
 __license__ = "GPLv3"
 __description__ = "Track your overall download to upload ratio."

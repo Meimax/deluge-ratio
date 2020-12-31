@@ -22,46 +22,49 @@ DEFAULT_PREFS = {
     "persistent": True,
     "total_download": 0,
     "total_upload": 0,
-    "session_download": 0,
-    "session_upload": 0,
 }
 
 
 class Core(CorePluginBase):
     def enable(self):
         self.config = deluge.configmanager.ConfigManager("ratio.conf", DEFAULT_PREFS)
+        self.config.run_converter((0, 1), 2, self.__migrate_config_1_to_2)
+        self.config.save()
 
         if self.config["persistent"]:
             log.info("Restoring ratio values")
             self.total_download = self.config["total_download"]
             self.total_upload = self.config["total_upload"]
-            self.session_download = self.config["session_download"]
-            self.session_upload = self.config["session_upload"]
         else:
             self.total_download = 0
             self.total_upload = 0
-            self.session_download = 0
-            self.session_upload = 0
+
+        session = self.get_session_bytes()
+        self.prev_net_recv_payload_bytes = session["net.recv_payload_bytes"]
+        self.prev_net_sent_payload_bytes = session["net.sent_payload_bytes"]
 
         self.periodic_update_config_timer = LoopingCall(self.update_config)
-        self.periodic_update_config_timer.start(64)
+        self.periodic_update_config_timer.start(321)
 
     def disable(self):
         self.periodic_update_config_timer.stop()
         self.update_config()
 
     def update(self):
-        session = deluge.component.get("Core").get_session_status(
+        session = self.get_session_bytes()
+        self.total_download += (
+            session["net.recv_payload_bytes"] - self.prev_net_recv_payload_bytes
+        )
+        self.total_upload += (
+            session["net.sent_payload_bytes"] - self.prev_net_sent_payload_bytes
+        )
+        self.prev_net_recv_payload_bytes = session["net.recv_payload_bytes"]
+        self.prev_net_sent_payload_bytes = session["net.sent_payload_bytes"]
+
+    def get_session_bytes(self):
+        return deluge.component.get("Core").get_session_status(
             ["net.recv_payload_bytes", "net.sent_payload_bytes"]
         )
-        self.total_download += max(
-            0, session["net.recv_payload_bytes"] - self.session_download
-        )
-        self.total_upload += max(
-            0, session["net.sent_payload_bytes"] - self.session_upload
-        )
-        self.session_download = session["net.recv_payload_bytes"]
-        self.session_upload = session["net.sent_payload_bytes"]
 
     def update_config(self):
         """Write totals to the config."""
@@ -69,9 +72,14 @@ class Core(CorePluginBase):
             log.debug("Updating Ratio plugin config with current totals.")
             self.config["total_download"] = self.total_download
             self.config["total_upload"] = self.total_upload
-            self.config["session_download"] = self.session_download
-            self.config["session_upload"] = self.session_upload
             self.config.save()
+
+    def __migrate_config_1_to_2(self, config):
+        if "session_download" in config:
+            del config["session_download"]
+        if "session_upload" in config:
+            del config["session_upload"]
+        return config
 
     @export
     def set_config(self, config):
