@@ -1,4 +1,4 @@
-Now with WebUI support
+* Now with WebUI support!
 
 Ever wanted to track your total uploads, downloads, and overall share
 ratio in [[http://deluge-torrent.org/][Deluge]]?
